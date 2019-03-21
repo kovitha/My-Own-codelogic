@@ -1,0 +1,47 @@
+void ArincSignalGateway_t::ASG_Initialize()
+{
+	#ifdef WITHCARD
+		A429BSP.A429_BSP_Wrapper_Initialize();
+	#endif
+
+    MATDataLog.MATDataLogInitialize();
+    MATDataStoreAccess = MATDataStore_t::Get_MATDataStoreInstance();
+    MATTimerAccess = MATTimer_t::Get_MATTimerInstance();    
+    StopTransmitTimer = MATTimer_t::Get_StopTransmitTimerInstance();
+	TransmitDelayInstance = MATTimer_t::Get_TransmitDelayInstance();
+	AllLRUConfigRequestScheduleTimerAccess = MATTimer_t::Get_AllLRUConfigRequestScheduleTimerInstance();
+	pCurrentMsgReceived = new A629MsgSentAndToSend_t;
+	MsgRequested = new A629MsgSentAndToSend_t;
+	EqipIdGetTimeAftLdCompTimerAccess = MATTimer_t::Get_EqipIdGetTimeAftLdCompTimerInstance();
+	MsgRetransmissionTimerAccess = MATTimer_t::Get_MessageRetransmissionTimerInstance();
+	LogMATTimeAccess = MATTimer_t::Get_LogMATTimeInstance();
+	MatSleepTimer = MATTimer_t::Get_MatSleepTimerInstance();
+
+	ProcessNonBroadCastData = false;
+	
+	DBG_ASG_LSAP_HDR_Filename = "DBG_ASG_LSAP_HDR.bin";
+	DBG_ASG_LSAP_Data_Filename= "DBG_ASG_LSAP_Data.bin";
+
+	BW_DBG_ASG_HDR_File      = BW_DBG_ASG_HDR_File->Null;
+	BW_DBG_ASG_Data_File     = BW_DBG_ASG_Data_File->Null;
+
+	for(int i = 0; i< LSAPWindowBufferSize; i++)
+	{
+		LSAPWindowBuffer[i] = 0;
+	}
+
+	TransmitDelayInstance->Timer_Clear();
+
+	SourceAddress = 0x0;
+	DestinationAddress = 0x0;
+	SourceCID = 0x0;
+	DestinationCID = 0x0;
+	TxA429Label = 0;
+	RxA429Label = 0;
+
+    //----Initialize the current message received even to Unused else it assigns DM_Zero.
+    CurrentMsgReceived.A629MsgName = UnUsed;
+    CurrentMsgReceived.A629MsgType = UnUsed_A629ReqMsgType;
+    CurrentMsgReceived.A629MsgExtn.A629ReqRejectedExtn = UnUsed_A629ReqRejectedExtn;
+    MATDataStoreAccess->Set_CurrentMsgReceived(&CurrentMsgReceived);
+}
